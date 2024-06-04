@@ -116,7 +116,7 @@ button_4.place(
     height=85.0
 )
 #######
-
+# initiate button
 button_image_2 = PhotoImage(
     file=relative_to_assets("button_2.png"))
 button_2 = Button(
@@ -124,6 +124,7 @@ button_2 = Button(
     borderwidth=0,
     highlightthickness=0,
     command=lambda: print("button_2 clicked"),
+    command=initiate_handler,
     relief="flat"
 )
 button_2.place(
