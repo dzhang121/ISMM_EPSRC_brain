@@ -165,7 +165,7 @@ def capture_and_save(frame_number=0):
 
 # Capture handler
 def capture_handler():
-     global folder
+    global folder
     folder = str(entry_1.get())
     if not os.path.exists(OUTPUT_PATH / folder):
         os.makedirs(OUTPUT_PATH / folder)
@@ -198,7 +198,7 @@ button_1.place(
 
 # exposure update button
 button_image_4 = PhotoImage(
-    file=relative_to_assets("button_3.png"))
+    file=relative_to_assets("button_4.png"))
 button_4 = Button(
     image=button_image_4,
     borderwidth=0,
