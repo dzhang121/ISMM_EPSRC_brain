@@ -7,6 +7,7 @@ from pathlib import Path
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
+import tkinter
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 OUTPUT_PATH = Path(__file__).parent
@@ -152,10 +153,9 @@ def exposure_handler():
     adjust(exp_value)
 
 # Capture 
-def capture_and_save():
+def capture_and_save(frame_number=0):
     
     print('running capture' )
-    frame_number=0
     img = grap_pseudo16bit(n_oversampling)
 
     file_name = f'{folder}/{date.today().isoformat()}_{frame_number:04d}.tiff'
@@ -165,10 +165,11 @@ def capture_and_save():
 
 # Capture handler
 def capture_handler():
-    
+     global folder
     folder = str(entry_1.get())
     if not os.path.exists(OUTPUT_PATH / folder):
         os.makedirs(OUTPUT_PATH / folder)
+    print(f'pictures path: {OUTPUT_PATH / folder}')
 
     s = sched.scheduler(time.time, time.sleep)
     for i in range(num_frames):
@@ -257,7 +258,8 @@ entry_1 = Entry(
     bd=0,
     bg="#D9D9D9",
     fg="#000716",
-    highlightthickness=0
+    highlightthickness=0,
+    textvariable=tkinter.StringVar(value='images')
 )
 entry_1.place(
     x=50.0,
@@ -283,6 +285,7 @@ canvas.create_rectangle(
     fill="#ECECEC",
     outline="")
 
+# entry2 fpm
 entry_image_2 = PhotoImage(
     file=relative_to_assets("entry_2.png"))
 entry_bg_2 = canvas.create_image(
@@ -294,7 +297,8 @@ entry_2 = Entry(
     bd=0,
     bg="#D9D9D9",
     fg="#000716",
-    highlightthickness=0
+    highlightthickness=0,
+    textvariable=tkinter.IntVar(value=10)
 )
 entry_2.place( #fpm
     x=50.0,
@@ -332,7 +336,8 @@ entry_3 = Entry(
     bd=0,
     bg="#D9D9D9",
     fg="#000716",
-    highlightthickness=0
+    highlightthickness=0,
+    textvariable=tkinter.IntVar(value=7000)
 )
 entry_3.place(
     x=50.0,
@@ -360,6 +365,7 @@ canvas.create_rectangle(
     fill="#ECECEC",
     outline="")
 
+# num of frames
 entry_image_4 = PhotoImage(
     file=relative_to_assets("entry_4.png"))
 entry_bg_4 = canvas.create_image(
@@ -371,8 +377,9 @@ entry_4 = Entry(
     bd=0,
     bg="#D9D9D9",
     fg="#000716",
-    highlightthickness=0
-) # num of frames
+    highlightthickness=0,
+    textvariable=tkinter.IntVar(value=10)
+) 
 entry_4.place(
     x=271.0,
     y=277.0,
@@ -397,6 +404,7 @@ canvas.create_rectangle(
     fill="#ECECEC",
     outline="")
 
+# n_oversample
 entry_image_5 = PhotoImage(
     file=relative_to_assets("entry_5.png"))
 entry_bg_5 = canvas.create_image(
@@ -408,9 +416,10 @@ entry_5 = Entry(
     bd=0,
     bg="#D9D9D9",
     fg="#000716",
-    highlightthickness=0
+    highlightthickness=0,
+    textvariable=tkinter.IntVar(value=6)
 )
-entry_5.place( # n_oversample
+entry_5.place( 
     x=492.0,
     y=277.0,
     width=173.0,
