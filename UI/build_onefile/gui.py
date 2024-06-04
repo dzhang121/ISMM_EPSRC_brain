@@ -16,7 +16,6 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"/Users/zd/Repos/ISMM_EPSRC_brain/UI/build/ass
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
-import capture
 
 # UI
 window = Tk()
@@ -62,6 +61,20 @@ canvas.create_text(
 )
 
 # Initiation handler
+import numpy as np
+import sched, time
+from datetime import date
+
+from skimage.io import imsave
+from skimage.util import img_as_uint
+from skimage import exposure
+
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from ipywidgets import interactive, IntRangeSlider, IntSlider
+
+from pypylon import pylon
+
 fpm=10
 num_frames=10
 n_oversampling=10
@@ -70,8 +83,65 @@ def initiate_handler():
     fpm = int(entry_2.get())
     num_frames = int(entry_4.get())
     n_oversampling = int(entry_5.get())
-    capture.opencamera
+    camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+    camera.Open()
     
+
+def grap_pseudo16bit(n_oversampling):
+    """Sum 2**n_oversampling images from the 10-bit camera and rescqle to obtain one pseudo-16-bit image."""
+    img32 = np.zeros((camera.Height.GetValue(), camera.Width.GetValue()), dtype=np.uint32)
+    
+    # Take images
+    camera.StartGrabbingMax(2**n_oversampling)
+    
+    while camera.IsGrabbing():
+        grabResult = camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
+
+        if grabResult.GrabSucceeded():
+            # Access the image data.
+            img32 += grabResult.Array
+
+        grabResult.Release()
+    # Rescale to uint16
+    if n_oversampling < 6:
+        # multiply by 2**(6-n_oversamp)
+        img16 = np.left_shift(img32, 6-n_oversampling).astype(np.uint16)
+    elif n_oversampling > 6:
+        # devide by 2**(n_oversamp-6)
+        img16 = np.right_shift(img32, n_oversampling-6).astype(np.uint16)
+    else:
+        # Just cast to 16 bits
+        img16 = img32.astype(np.uint16)
+    
+    return img16
+
+
+def adjust(exposure):
+    # Set new exposure
+    camera.ExposureTime.SetValue(float(exposure))
+    
+    # Get image
+    img = grap_pseudo16bit(n_oversampling)
+    
+    # Emulation
+    #img = np.random.randint(0,1023,size=(1000,1000), dtype=np.uint16)
+    
+    plt.rcParams["figure.figsize"] = (15,15)
+    cmap = cm.get_cmap("gray").copy()
+    cmap.set_over('red')
+    
+    figure, ax = plt.subplots(nrows=2)
+    
+    ax[0].imshow(img, cmap=cmap, vmin=0, vmax=2**16-2**6-1)
+    
+    ax[1].hist(img.flatten(), bins=256, log=True)
+    plt.show()
+    
+    result = {'exposure': exposure,
+             'width': 0,
+             'height': 0}
+    
+    return result
 
 # Exposure handler
 exp_value=5000
@@ -79,7 +149,7 @@ def exposure_handler():
     global exp_value
     exp_value = int(entry_3.get())
     print('exposure is set to %i' % exp_value)
-    capture.adjust(exp_value)
+    adjust(exp_value)
 
 
 
@@ -99,6 +169,7 @@ button_1.place(
     width=200.0,
     height=85.0
 )
+
 # exposure update button
 button_image_4 = PhotoImage(
     file=relative_to_assets("button_3.png"))
