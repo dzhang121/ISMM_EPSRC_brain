@@ -177,6 +177,8 @@ def capture_handler():
         
     s.run()
 
+    print(f'Capture complete')
+
 
 ###########################UI bits###########################
 #button1 - capture button
