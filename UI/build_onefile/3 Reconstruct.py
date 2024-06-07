@@ -61,6 +61,8 @@ print(f"Image dimensions (height, width): {A.shape[1:]}")
 # 
 # Use `i_min` and `i_max` as relative min and max lines to consider for finding the symmetry axis.
 
+print(f'finding symmetry axis and prompting for checks')
+
 # In[4]:
 
 
@@ -150,6 +152,7 @@ plt.imshow(ref_rot, cmap='gray')
 plt.plot([axis,axis], [0, len(ref_rot)-1],'r')
 plt.show()
 
+print(f'symmetry checked, applying rotation to all images')
 
 # In[8]:
 
@@ -209,6 +212,7 @@ print(np.nanmin(c), np.nanmax(c))
 
 # In[12]:
 
+print(f'reconstructing from 2D to 3D symmetric volumn on example image')
 
 c[np.isnan(c)] = 0
 c_right = c[:,axis:]
@@ -228,7 +232,7 @@ print('Total mass found (µg):', np.sum(B)/pxpcm**3)
 # If we are happy, let's do it for the whole stack!
 
 # In[13]:
-
+print(f'reconstructing from 2D to 3D symmetric volumn on all images')
 
 c = np.empty_like(A)
 mass_Abel = []
@@ -264,54 +268,6 @@ mass_Abel[0] = 0
 
 # In[14]:
 
-
-# Import previous data
-previous_data = np.loadtxt('mass.txt')
-time = previous_data[:,0]
-mass = previous_data[:,1]
-rate = previous_data[:,2]
-
-plt.rcParams["figure.figsize"] = (10,8)
-plt.plot(time, mass, label='From absorbance, ignoring probe shadow')
-plt.plot(time, mass_Abel, label='From concentration field and forward Abel transform')
-plt.ylabel('Total mass delivered (µg)')
-plt.xlabel('Time (min)')
-#plt.ylim(0,22)
-plt.legend()
-plt.show()
-
-
-# ### Effect of probe shadow
-
-# In[15]:
-
-
-floor = np.sum(np.isnan(mask))/(height*width)
-
-rel_error = 1 - mass/mass_Abel
-plt.plot(time, rel_error, label='Relative error')
-plt.plot([time[0], time[-1]], [floor, floor], label='Shadow')
-plt.show()
-
-
-# ### Delivery rates
-
-# In[16]:
-
-
-rate_Abel = np.empty_like(mass_Abel)
-rate_Abel[0] = 0
-rate_Abel[1:] = np.diff(mass_Abel)/dt
-
-plt.plot(time, rate, label='From absorbance')
-plt.plot(time, rate_Abel, label='From concentration and forward Abel transform')
-plt.ylabel('Delivery rate (µg/min)')
-plt.xlabel('Time (min)')
-plt.legend()
-plt.grid()
-plt.show()
-
-
 # ## Save data
 
 # In[17]:
@@ -320,42 +276,7 @@ plt.show()
 mass_Abel[0] = 0
 np.savetxt('mass_Abel.txt', np.hstack((time[:, None], mass_Abel[:, None], rate_Abel[:, None])), header='# time (min),  mass (ug), rate (ug/min)')
 
-
-# ## Concentration map survey
-
-# In[18]:
-
-
-t = 60
-
-plt.rcParams["figure.figsize"] = (15,15)
-figure, ax = plt.subplots(ncols=2)
-
-im = ax[0].imshow(c[t], vmin=0, vmax=200)
-im.cmap.set_over('r')
-figure.colorbar(im, ax=ax[0])
-con = ax[1].contourf(c[t], [10, 20, 100, 200], origin='image')
-figure.colorbar(con, ax=ax[1])
-plt.show()
-
-
-# In[19]:
-
-
-# Save concentration slice for later use
-#np.save('c_20min', c[20])
-#np.save('c_60min', c[60])
-#np.save('c_120min', c[120])
-#np.save('c_5ug', c[42])
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
+print(f'2D and 3D symmetrical reconstruction results saved')
 
 
 

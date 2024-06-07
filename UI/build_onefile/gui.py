@@ -10,6 +10,8 @@ from pathlib import Path
 import tkinter
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
+from time import sleep
+
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / "assets/frame0"
 
@@ -74,8 +76,9 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from ipywidgets import interactive, IntRangeSlider, IntSlider
 
-from pypylon import pylon
+# from pypylon import pylon
 
+#initiate handler
 fpm=10
 num_frames=10
 n_oversampling=10
@@ -144,7 +147,7 @@ def adjust(exposure):
     
     return result
 
-# Exposure handler
+# Update button - Exposure handler 
 exp_value=5000
 def exposure_handler():
     global exp_value
@@ -152,7 +155,7 @@ def exposure_handler():
     print('exposure is set to %i' % exp_value)
     adjust(exp_value)
 
-# Capture 
+# Capture function
 def capture_and_save(frame_number=0):
     
     print('running capture' )
@@ -180,6 +183,26 @@ def capture_handler():
     print(f'Capture complete')
 
 
+# Post-process Handler
+def process_handler():
+    
+    print('analysing images' )
+    exec(open('1 Preprocessing').read())
+    sleep(0.1)
+    exec(open('2 Integrate').read())
+    sleep(0.1)
+    exec(open('3 Reconstruct').read())
+
+    print('finished analysing images' )
+
+
+# Result Handler
+def result_handler():
+    
+    print('retrieving results, TBC' )
+    
+
+
 ###########################UI bits###########################
 #button1 - capture button
 button_image_1 = PhotoImage(
@@ -192,8 +215,8 @@ button_1 = Button(
     relief="flat"
 )
 button_1.place(
-    x=50.0,
-    y=639.0,
+    x=32.0,
+    y=530.0,
     width=200.0,
     height=85.0
 )
@@ -232,19 +255,37 @@ button_2.place(
     height=85.0
 )
 
+#process button
 button_image_3 = PhotoImage(
     file=relative_to_assets("button_3.png"))
 button_3 = Button(
     image=button_image_3,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_3 clicked"),
+    command=process_handler,
     relief="flat"
 )
 button_3.place(
-    x=46.0,
-    y=760.0,
-    width=273.0,
+    x=32.0,
+    y=640.0,
+    width=200.0,
+    height=85.0
+)
+
+#result button
+button_image_5 = PhotoImage(
+    file=relative_to_assets("button_5.png"))
+button_5 = Button(
+    image=button_image_5,
+    borderwidth=0,
+    highlightthickness=0,
+    command=result_handler,
+    relief="flat"
+)
+button_5.place(
+    x=32.0,
+    y=750.0,
+    width=200.0,
     height=85.0
 )
 
@@ -437,12 +478,12 @@ canvas.create_text(
     font=("Inter", 20 * -1)
 )
 
-image_image_1 = PhotoImage(
-    file=relative_to_assets("image_1.png"))
-image_1 = canvas.create_image(
-    433.0,
-    484.0,
-    image=image_image_1
-)
+# image_image_1 = PhotoImage(
+#     file=relative_to_assets("image_1.png"))
+# image_1 = canvas.create_image(
+#     433.0,
+#     484.0,
+#     image=image_image_1
+# )
 window.resizable(False, False)
 window.mainloop()
