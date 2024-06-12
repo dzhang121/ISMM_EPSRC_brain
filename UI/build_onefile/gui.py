@@ -12,6 +12,8 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 from time import sleep
 
+import subprocess
+
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / "assets/frame0"
 
@@ -186,20 +188,26 @@ def capture_handler():
 # Post-process Handler
 def process_handler():
     
-    print('analysing images' )
-    exec(open('1 Preprocessing').read())
-    sleep(0.1)
-    exec(open('2 Integrate').read())
-    sleep(0.1)
-    exec(open('3 Reconstruct').read())
+    print(f'analysing images' )
+    subprocess.run(['python','1 Preprocessing.py'],capture_output=False)
+    #exec(open('1 Preprocessing.py').read())
+    print(f'1.Preprocessing finished' )
 
-    print('finished analysing images' )
+    sleep(10.1)
+    subprocess.run(['python','2 Integrate.py'],capture_output=False)
+    print(f'2 Integrate finished' )
+
+    sleep(10.1)
+    subprocess.run(['python','3 Reconstruct.py'],capture_output=False)
+    print(f'3 Reconstruct finished' )
+
+    print(f'finished analysing images' )
 
 
 # Result Handler
 def result_handler():
     
-    print('retrieving results, TBC' )
+    print(f'retrieving results, TBC' )
     
 
 
