@@ -145,6 +145,8 @@ cmap2 = mpl.colors.ListedColormap(["#7fcdbb", "#1d91c0", "#0c2c84"])
 cmap2.set_under('#eeeeee')
 norm2 = mpl.colors.BoundaryNorm([2, 20, 100, 200], cmap2.N) 
 # show colorbar
+im1 = ax1.imshow(c[t], cmap=plt.get_cmap('YlGnBu').copy(), vmin=0, vmax=200)
+im2 = ax2.imshow(c[t], cmap=cmap2, norm=norm2)
 fig.colorbar(im1, ax=ax1)
 fig.colorbar(im2, ax=ax2)
 
