@@ -1,17 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # 3. Reconstruct using inverse Abel transform
-# 
-# In this notebook, we will use absorbance and inverse Abel transform to compute the concentration field assuming axial symmetry.
-# 
-# First, we should have run the following notebooks:
-# - `1 Preprocessing` to extract and denoise absorbance data.
-# - `2 Integrate` to measure the mass (minus probe shadow).
-# 
-# First we import Python modules and define some paraemters.
-
-# In[1]:
+# # 4. Visualise Results
 
 
 # Python imports
@@ -19,7 +6,6 @@ import numpy as np
 
 from skimage.transform import rotate
 
-get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
@@ -54,6 +40,7 @@ reconstructed_data = np.loadtxt('mass_Abel.txt')
 mass_Abel = reconstructed_data[:,1]
 rate_Abel = reconstructed_data[:,2]
 
+#plot mass vs time
 plt.rcParams["figure.figsize"] = (10,8)
 plt.plot(time, mass, label='From absorbance, ignoring probe shadow')
 plt.plot(time, mass_Abel, label='From concentration field and forward Abel transform')
@@ -63,10 +50,12 @@ plt.xlabel('Time (min)')
 plt.legend()
 plt.show()
 
-#### Effect of probe shadow
+#import concentration images
+np.load('c_all')
 
 # In[15]:
 
+#### Effect of probe shadow
 
 # floor = np.sum(np.isnan(mask))/(height*width)
 # rel_error = 1 - mass/mass_Abel
@@ -74,11 +63,8 @@ plt.show()
 # plt.plot([time[0], time[-1]], [floor, floor], label='Shadow')
 # plt.show()
 
-
-# ### Delivery rates
-
 # In[16]:
-
+# ### Delivery rates
 
 rate_Abel = np.empty_like(mass_Abel)
 rate_Abel[0] = 0
@@ -93,10 +79,8 @@ plt.grid()
 plt.show()
 
 
-# ## Concentration map survey
-
 # In[18]:
-
+# ## Interactive Concentration map survey
 
 t = 60
 
@@ -110,7 +94,73 @@ con = ax[1].contourf(c[t], [10, 20, 100, 200], origin='image')
 figure.colorbar(con, ax=ax[1])
 plt.show()
 
+# Interactive element
+# Function to update the plots based on slider values
+def update_plots(*args):
+    global slider_values, horizontal, vertical 
+    slider_values = slider1.get()
+    
+    #get image
+    im = im0[vertical[0]:vertical[1],horizontal[0]:horizontal[1]]
+    rect = patches.Rectangle([horizontal[0], vertical[0]], horizontal[1]-horizontal[0], vertical[1]-vertical[0], linewidth=1, edgecolor='r', facecolor='none')
+    
+    ax1.clear()
+    im1 = ax1.imshow(c[t], cmap=plt.get_cmap('YlGnBu'), vmin=0, vmax=200)
+    im1.cmap.set_over('r')
+    figure.colorbar(im1, ax=ax1)
+    ax1.set_title('Original concentration map')
+    canvas1.draw()
 
+    ax2.clear()
+    im2 = ax2.imshow(c[t], cmap=cmap2, norm=norm2)
+    im2.cmap.set_over('r')
+    figure.colorbar(im2, ax=ax2)
+    ax2.set_title('Discrete concentration map')
+    canvas2.draw()
+    
+    # Update slider value labels
+    label1.config(text=f'Slider 1: {slider1.get()}')
+
+# Initialize the main window
+root = tk.Tk()
+root.title("Concentration Map Survey")
+
+# Create sliders and labels
+frame = ttk.Frame(root)
+frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+slider1 = tk.Scale(frame, from_=0, to=len(c)-1, orient=tk.HORIZONTAL, resolution=1,command=update_plots)
+slider1.pack()
+label1 = tk.Label(frame, text=f'Slider 1: {slider1.get()}')
+label1.pack()
+
+# Create the plot area
+plot_frame = ttk.Frame(root)
+plot_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+fig = Figure(figsize=(8, 6))
+
+# Plot 1
+ax1 = fig.add_subplot(211)
+canvas1 = FigureCanvasTkAgg(fig, master=plot_frame)
+canvas1.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+# Plot 2
+ax2 = fig.add_subplot(212)
+canvas2 = FigureCanvasTkAgg(fig, master=plot_frame)
+canvas2.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+# Build a discrete colorbar
+cmap2 = mpl.colors.ListedColormap(["#7fcdbb", "#1d91c0", "#0c2c84"])
+cmap2.set_under('#eeeeee')
+norm2 = mpl.colors.BoundaryNorm([2, 20, 100, 200], cmap2.N) 
+
+# Initialize the plots with default values
+update_plots()
+
+# Start the Tkinter main loop
+root.mainloop()
+
+########end of GUI pop-up###########
 # In[19]:
 
 
@@ -119,16 +169,4 @@ plt.show()
 #np.save('c_60min', c[60])
 #np.save('c_120min', c[120])
 #np.save('c_5ug', c[42])
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
