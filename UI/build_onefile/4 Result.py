@@ -115,6 +115,7 @@ def update_plots(*args):
 # Initialize the main window
 root = tk.Tk()
 root.title("Concentration Map Survey")
+root.geometry("800x600")
 
 # Create sliders and labels
 frame = ttk.Frame(root)

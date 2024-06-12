@@ -115,7 +115,8 @@ def crop_update_plots(*args):
 
 # Initialize the main window
 root = tk.Tk()
-root.title("Tkinter Sliders with Plots")
+root.title("Crop images to gel of interest only")
+root.geometry("600x600")
 
 # Create sliders and labels
 frame = ttk.Frame(root)
