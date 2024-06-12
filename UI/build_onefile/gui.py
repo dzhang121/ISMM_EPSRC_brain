@@ -193,21 +193,23 @@ def process_handler():
     #exec(open('1 Preprocessing.py').read())
     print(f'1.Preprocessing finished' )
 
-    sleep(10.1)
+    sleep(1.1)
     subprocess.run(['python','2 Integrate.py'],capture_output=False,check=True)
     print(f'2 Integrate finished' )
 
-    sleep(10.1)
+    sleep(1.1)
     subprocess.run(['python','3 Reconstruct.py'],capture_output=False,check=True)
     print(f'3 Reconstruct finished' )
 
-    print(f'finished analysing images' )
+    print(f'Process: all finished, images analysed' )
 
 
 # Result Handler
 def result_handler():
     
-    print(f'retrieving results, TBC' )
+    sleep(1.1)
+    subprocess.run(['python','4 Result.py'],capture_output=False,check=True)
+    print(f'finished visualising results' )
     
 
 
