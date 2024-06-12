@@ -51,7 +51,7 @@ plt.legend()
 plt.show()
 
 #import concentration images
-np.load('c_all')
+c = np.load('c_all.npy')
 
 # In[15]:
 
@@ -82,30 +82,19 @@ plt.show()
 # In[18]:
 # ## Interactive Concentration map survey
 
-t = 60
-
-plt.rcParams["figure.figsize"] = (15,15)
-figure, ax = plt.subplots(ncols=2)
-
-im = ax[0].imshow(c[t], vmin=0, vmax=200)
-im.cmap.set_over('r')
-figure.colorbar(im, ax=ax[0])
-con = ax[1].contourf(c[t], [10, 20, 100, 200], origin='image')
-figure.colorbar(con, ax=ax[1])
-plt.show()
-
 # Interactive element
 # Function to update the plots based on slider values
 def update_plots(*args):
     global slider_values, horizontal, vertical 
     slider_values = slider1.get()
-    
+    t = slider_values[0]
+
     #get image
     im = im0[vertical[0]:vertical[1],horizontal[0]:horizontal[1]]
     rect = patches.Rectangle([horizontal[0], vertical[0]], horizontal[1]-horizontal[0], vertical[1]-vertical[0], linewidth=1, edgecolor='r', facecolor='none')
     
     ax1.clear()
-    im1 = ax1.imshow(c[t], cmap=plt.get_cmap('YlGnBu'), vmin=0, vmax=200)
+    im1 = ax1.imshow(c[t], cmap=plt.get_cmap('YlGnBu').copy(), vmin=0, vmax=200)
     im1.cmap.set_over('r')
     figure.colorbar(im1, ax=ax1)
     ax1.set_title('Original concentration map')
@@ -129,7 +118,7 @@ root.title("Concentration Map Survey")
 frame = ttk.Frame(root)
 frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-slider1 = tk.Scale(frame, from_=0, to=len(c)-1, orient=tk.HORIZONTAL, resolution=1,command=update_plots)
+slider1 = tk.Scale(frame, from_=0, to=len(c)-1, orient=tk.VERTICAL, resolution=1,command=update_plots)
 slider1.pack()
 label1 = tk.Label(frame, text=f'Slider 1: {slider1.get()}')
 label1.pack()

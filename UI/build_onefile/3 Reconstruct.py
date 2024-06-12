@@ -282,5 +282,5 @@ np.savetxt('mass_Abel.txt', np.hstack((time[:, None], mass_Abel[:, None], rate_A
 print(f'2D and 3D symmetrical reconstruction results saved')
 
 
-np.save('c_all', c)
+np.save('c', c)
 print(f'saved concentration images')
