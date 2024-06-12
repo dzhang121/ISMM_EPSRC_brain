@@ -266,11 +266,15 @@ mass_Abel[0] = 0
 
 
 # In[14]:
-
-# ## Save data
+# process data for saving
+rate_Abel = np.empty_like(mass_Abel)
+rate_Abel[0] = 0
+rate_Abel[1:] = np.diff(mass_Abel)/dt
+previous_data = np.loadtxt('mass.txt')
+time = previous_data[:,0]
 
 # In[17]:
-
+# ## Save data
 
 mass_Abel[0] = 0
 np.savetxt('mass_Abel.txt', np.hstack((time[:, None], mass_Abel[:, None], rate_Abel[:, None])), header='# time (min),  mass (ug), rate (ug/min)')

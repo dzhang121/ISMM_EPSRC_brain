@@ -87,8 +87,8 @@ def crop_update_plots(*args):
     slider_values = [slider1.get(), slider2.get(), slider3.get(), slider4.get()]
     horizontal = [slider_values[0], x_max-slider_values[1]]
     vertical = [slider_values[2], y_max-slider_values[3]]
-    print(horizontal)
-    print(vertical)
+    #print(horizontal)
+    #print(vertical)
     
     #get image
     im = im0[vertical[0]:vertical[1],horizontal[0]:horizontal[1]]
