@@ -144,13 +144,24 @@ canvas2.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 cmap2 = mpl.colors.ListedColormap(["#7fcdbb", "#1d91c0", "#0c2c84"])
 cmap2.set_under('#eeeeee')
 norm2 = mpl.colors.BoundaryNorm([2, 20, 100, 200], cmap2.N) 
-# show colorbar
-im1 = ax1.imshow(c[t], cmap=plt.get_cmap('YlGnBu').copy(), vmin=0, vmax=200)
-im2 = ax2.imshow(c[t], cmap=cmap2, norm=norm2)
-fig.colorbar(im1, ax=ax1)
-fig.colorbar(im2, ax=ax2)
 
-# Initialize the plots with default values
+
+
+# Initialize the plots with default valuesax1.clear()
+t=0
+im1 = ax1.imshow(c[t], cmap=plt.get_cmap('YlGnBu').copy(), vmin=0, vmax=200)
+im1.cmap.set_over('r')
+fig.colorbar(im1, ax=ax1)
+ax1.set_title('Original concentration map')
+canvas1.draw()
+
+ax2.clear()
+im2 = ax2.imshow(c[t], cmap=cmap2, norm=norm2)
+im2.cmap.set_over('r')
+fig.colorbar(im2, ax=ax2)
+ax2.set_title('Discrete concentration map')
+canvas2.draw()
+
 update_plots()
 
 # Start the Tkinter main loop
