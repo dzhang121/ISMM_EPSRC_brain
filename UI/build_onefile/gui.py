@@ -207,7 +207,7 @@ def process_handler():
 # Result Handler
 def result_handler():
     
-    sleep(1.1)
+    print(f'reading results' )
     subprocess.run(['python','4 Result.py'],capture_output=False,check=True)
     print(f'finished visualising results' )
     

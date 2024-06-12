@@ -7,11 +7,17 @@ import numpy as np
 from skimage.transform import rotate
 
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib as mpl
 
 from tqdm import tqdm
 from scipy.optimize import curve_fit
 
 from abel.basex import basex_transform
+
+import tkinter as tk
+from tkinter import ttk
 
 # Hyper parameters
 
@@ -87,23 +93,19 @@ plt.show()
 def update_plots(*args):
     global slider_values, horizontal, vertical 
     slider_values = slider1.get()
-    t = slider_values[0]
+    t = slider_values
 
     #get image
-    im = im0[vertical[0]:vertical[1],horizontal[0]:horizontal[1]]
-    rect = patches.Rectangle([horizontal[0], vertical[0]], horizontal[1]-horizontal[0], vertical[1]-vertical[0], linewidth=1, edgecolor='r', facecolor='none')
-    
+
     ax1.clear()
     im1 = ax1.imshow(c[t], cmap=plt.get_cmap('YlGnBu').copy(), vmin=0, vmax=200)
     im1.cmap.set_over('r')
-    figure.colorbar(im1, ax=ax1)
     ax1.set_title('Original concentration map')
     canvas1.draw()
 
     ax2.clear()
     im2 = ax2.imshow(c[t], cmap=cmap2, norm=norm2)
     im2.cmap.set_over('r')
-    figure.colorbar(im2, ax=ax2)
     ax2.set_title('Discrete concentration map')
     canvas2.draw()
     
@@ -130,18 +132,21 @@ plot_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 fig = Figure(figsize=(8, 6))
 
 # Plot 1
-ax1 = fig.add_subplot(211)
+ax1 = fig.add_subplot(121)
 canvas1 = FigureCanvasTkAgg(fig, master=plot_frame)
 canvas1.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 # Plot 2
-ax2 = fig.add_subplot(212)
+ax2 = fig.add_subplot(122)
 canvas2 = FigureCanvasTkAgg(fig, master=plot_frame)
 canvas2.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 # Build a discrete colorbar
 cmap2 = mpl.colors.ListedColormap(["#7fcdbb", "#1d91c0", "#0c2c84"])
 cmap2.set_under('#eeeeee')
 norm2 = mpl.colors.BoundaryNorm([2, 20, 100, 200], cmap2.N) 
+# show colorbar
+fig.colorbar(im1, ax=ax1)
+fig.colorbar(im2, ax=ax2)
 
 # Initialize the plots with default values
 update_plots()
