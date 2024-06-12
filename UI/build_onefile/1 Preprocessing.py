@@ -463,10 +463,10 @@ print(slice_value)
 
 ########end of GUI pop-up###########
 
-# If we are happy, let's do it for the whole stack:
+
 
 # In[21]:
-
+# If we are happy, let's do it for the whole stack:
 
 A_denoised = np.empty_like(A)
 #A_denoised = A.copy()
@@ -486,12 +486,8 @@ for i, im in tqdm(enumerate(A), total=len(list_files)):
 np.save('absorbance', A_denoised)
 np.save('mask', mask)
 
+print(f'saved denoised absorbance and shadow mask' )
+
 # Uncomment this line to save denoised image stack as well:
 #np.save('stack', stack_denoised)
-
-
-# In[ ]:
-
-
-
-
+#print(f'saved stack_denoised' )

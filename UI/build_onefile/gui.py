@@ -189,16 +189,16 @@ def capture_handler():
 def process_handler():
     
     print(f'analysing images' )
-    subprocess.run(['python','1 Preprocessing.py'],capture_output=False)
+    subprocess.run(['python','1 Preprocessing.py'],capture_output=False,check=True)
     #exec(open('1 Preprocessing.py').read())
     print(f'1.Preprocessing finished' )
 
     sleep(10.1)
-    subprocess.run(['python','2 Integrate.py'],capture_output=False)
+    subprocess.run(['python','2 Integrate.py'],capture_output=False,check=True)
     print(f'2 Integrate finished' )
 
     sleep(10.1)
-    subprocess.run(['python','3 Reconstruct.py'],capture_output=False)
+    subprocess.run(['python','3 Reconstruct.py'],capture_output=False,check=True)
     print(f'3 Reconstruct finished' )
 
     print(f'finished analysing images' )

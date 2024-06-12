@@ -19,7 +19,6 @@ import numpy as np
 
 from skimage.transform import rotate
 
-get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
@@ -279,5 +278,5 @@ np.savetxt('mass_Abel.txt', np.hstack((time[:, None], mass_Abel[:, None], rate_A
 print(f'2D and 3D symmetrical reconstruction results saved')
 
 
-
-
+np.save('c', c_all)
+print(f'saved concentration images')
