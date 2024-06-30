@@ -60,7 +60,7 @@ canvas.create_text(
     55.0,
     23.0,
     anchor="nw",
-    text="Brain-in-a-Box 2D Measurement Control Panel",
+    text="Brain-in-a-Box 3D Imaging (Under Development)",
     fill="#000000",
     font=("Inter", 30 * -1)
 )
@@ -80,15 +80,25 @@ from ipywidgets import interactive, IntRangeSlider, IntSlider
 
 # from pypylon import pylon
 
+# In[]
 #initiate handler
 fpm=10
+images_per_rotation=360
 num_frames=10
+delay_repeat=30
+repeat_times=0
 n_oversampling=10
+
 def initiate_handler():
-    global fpm,num_frames,n_oversampling,camera
-    fpm = int(entry_2.get())
-    num_frames = int(entry_4.get())
-    n_oversampling = int(entry_5.get())
+    global fpm,num_frames,n_oversampling,camera,images_per_rotation,repeat_times,delay_repeat,angle_step
+    images_per_rotation = int(entry_2.get())
+    repeat_times = int(entry_4.get())
+    delay_repeat  = int(entry_5.get())
+    n_oversampling = int(entry_6.get())
+
+    num_frames=images_per_rotation*repeat_times
+    angle_step=360/images_per_rotation
+
     camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
     camera.Open()
     
@@ -158,15 +168,15 @@ def exposure_handler():
     adjust(exp_value)
 
 # Capture function
-def capture_and_save(frame_number=0):
+def capture_and_save(repeat_number=0,frame_number=0):
     
     print('running capture' )
     img = grap_pseudo16bit(n_oversampling)
 
-    file_name = f'{folder}/{date.today().isoformat()}_{frame_number:04d}.tiff'
+    file_name = f'{folder}/{date.today().isoformat()}_{repeat_number:03d}_{frame_number:04d}.tiff'
     imsave(file_name, img)
     
-    print(f'Frame number {frame_number}')
+    print(f'Repeat number {repeat_number} Frame number {frame_number}')
 
 # Capture handler
 def capture_handler():
@@ -176,43 +186,57 @@ def capture_handler():
         os.makedirs(OUTPUT_PATH / folder)
     print(f'pictures path: {OUTPUT_PATH / folder}')
 
-    s = sched.scheduler(time.time, time.sleep)
-    for i in range(num_frames):
-        s.enter(i*60./fpm, 1, capture_and_save, kwargs={'frame_number':i})
+    from servo_control import send_servo_position
+
+    for repeat_number in range(repeat_times+1):
+        angle = 0.0
+        for frame_number in range(images_per_rotation):
+            send_servo_position(angle)
+            sleep(0.3)
+            capture_and_save(repeat_number,frame_number)
+            sleep(0.3)
+            angle = angle+angle_step
+
+        send_servo_position(0.0)
+
+        sleep(delay_repeat)
         
-    s.run()
 
     print(f'Capture complete')
 
 
+
+
+
+
 # Post-process Handler
 def process_handler():
-    
-    print(f'analysing images' )
-    subprocess.run(['python','1 Preprocessing.py'],capture_output=False,check=True)
-    #exec(open('1 Preprocessing.py').read())
-    print(f'1.Preprocessing finished' )
+    print(f'under development' )
+    # print(f'analysing images' )
+    # subprocess.run(['python','1 Preprocessing.py'],capture_output=False,check=True)
+    # #exec(open('1 Preprocessing.py').read())
+    # print(f'1.Preprocessing finished' )
 
-    sleep(1.1)
-    subprocess.run(['python','2 Integrate.py'],capture_output=False,check=True)
-    print(f'2 Integrate finished' )
+    # sleep(1.1)
+    # subprocess.run(['python','2 Integrate.py'],capture_output=False,check=True)
+    # print(f'2 Integrate finished' )
 
-    sleep(1.1)
-    subprocess.run(['python','3 Reconstruct.py'],capture_output=False,check=True)
-    print(f'3 Reconstruct finished' )
+    # sleep(1.1)
+    # subprocess.run(['python','3 Reconstruct.py'],capture_output=False,check=True)
+    # print(f'3 Reconstruct finished' )
 
-    print(f'Process: all finished, images analysed' )
+    # print(f'Process: all finished, images analysed' )
 
 
 # Result Handler
 def result_handler():
-    
-    print(f'reading results' )
-    subprocess.run(['python','4 Result.py'],capture_output=False,check=True)
-    print(f'finished visualising results' )
+    print(f'under development' )
+    # print(f'reading results' )
+    # subprocess.run(['python','4 Result.py'],capture_output=False,check=True)
+    # print(f'finished visualising results' )
     
 
-
+# In[2]: UI Bits
 ###########################UI bits###########################
 #button1 - capture button
 button_image_1 = PhotoImage(
@@ -330,20 +354,22 @@ canvas.create_text(
     font=("Inter", 20 * -1)
 )
 
+# In[0]: 
+# images per rotation
+
 canvas.create_rectangle(
     32.0,
-    236.0,
+    233.0,
     232.0,
-    315.0,
+    312.0,
     fill="#ECECEC",
     outline="")
 
-# entry2 fpm
 entry_image_2 = PhotoImage(
     file=relative_to_assets("entry_2.png"))
 entry_bg_2 = canvas.create_image(
-    136.5,
-    292.5,
+    127.5,
+    289.5,
     image=entry_image_2
 )
 entry_2 = Entry(
@@ -351,23 +377,26 @@ entry_2 = Entry(
     bg="#D9D9D9",
     fg="#000716",
     highlightthickness=0,
-    textvariable=tkinter.IntVar(value=10)
+    textvariable=tkinter.IntVar(value=360)
 )
-entry_2.place( #fpm
-    x=50.0,
-    y=276.0,
+entry_2.place( 
+    x=41.0,
+    y=273.0,
     width=173.0,
     height=31.0
 )
 
 canvas.create_text(
-    46.0,
+    43.0,
     249.0,
     anchor="nw",
-    text="Frame per minute:",
+    text="Images per rotation:",
     fill="#000000",
     font=("Inter", 20 * -1)
 )
+
+# In[0]: 
+# Exposure entry
 
 canvas.create_rectangle(
     32.0,
@@ -377,7 +406,7 @@ canvas.create_rectangle(
     fill="#ECECEC",
     outline="")
 
-# Exposure entry
+
 entry_image_3 = PhotoImage(
     file=relative_to_assets("entry_3.png"))
 entry_bg_3 = canvas.create_image(
@@ -393,13 +422,11 @@ entry_3 = Entry(
     textvariable=tkinter.IntVar(value=7000)
 )
 entry_3.place(
-    x=50.0,
+    x=45.0,
     y=474.0,
     width=173.0,
     height=31.0
 )
-
-
 
 canvas.create_text(
     46.0,
@@ -409,21 +436,23 @@ canvas.create_text(
     fill="#000000",
     font=("Inter", 20 * -1)
 )
+# In[0]: 
+# repeat times - entry4
 
 canvas.create_rectangle(
-    253.0,
-    236.0,
-    453.0,
-    315.0,
+    244.0,
+    234.0,
+    444.0,
+    313.0,
     fill="#ECECEC",
     outline="")
 
-# num of frames
+
 entry_image_4 = PhotoImage(
     file=relative_to_assets("entry_4.png"))
 entry_bg_4 = canvas.create_image(
-    357.5,
-    293.5,
+    348.5,
+    291.5,
     image=entry_image_4
 )
 entry_4 = Entry(
@@ -431,38 +460,40 @@ entry_4 = Entry(
     bg="#D9D9D9",
     fg="#000716",
     highlightthickness=0,
-    textvariable=tkinter.IntVar(value=10)
+    textvariable=tkinter.IntVar(value=0)
 ) 
 entry_4.place(
-    x=271.0,
-    y=277.0,
+    x=252.0,
+    y=275.0,
     width=173.0,
     height=31.0
 )
 
 canvas.create_text(
-    267.0,
+    253.0,
     249.0,
     anchor="nw",
-    text="Number of frames:",
+    text="Repeat times:",
     fill="#000000",
     font=("Inter", 20 * -1)
 )
 
+# In[0]:
+# delay repeat 
+
 canvas.create_rectangle(
-    474.0,
-    236.0,
-    674.0,
-    315.0,
+    456.0,
+    233.0,
+    656.0,
+    312.0,
     fill="#ECECEC",
     outline="")
 
-# n_oversample
 entry_image_5 = PhotoImage(
     file=relative_to_assets("entry_5.png"))
 entry_bg_5 = canvas.create_image(
-    578.5,
-    293.5,
+    560,
+    290,
     image=entry_image_5
 )
 entry_5 = Entry(
@@ -470,23 +501,67 @@ entry_5 = Entry(
     bg="#D9D9D9",
     fg="#000716",
     highlightthickness=0,
-    textvariable=tkinter.IntVar(value=6)
+    textvariable=tkinter.IntVar(value=0)
 )
 entry_5.place( 
-    x=492.0,
-    y=277.0,
+    x=464.0,
+    y=274.0,
     width=173.0,
     height=31.0
 )
 
 canvas.create_text(
-    479.0,
-    249.0,
+    465.0,
+    246.0,
+    anchor="nw",
+    text="Delay repeat (s):",
+    fill="#000000",
+    font=("Inter", 20 * -1)
+)
+
+# In[0]:
+#over sample index
+canvas.create_rectangle(
+    667.0,
+    233.0,
+    867.0,
+    312.0,
+    fill="#ECECEC",
+    outline="")
+
+entry_image_6 = PhotoImage(
+    file=relative_to_assets("entry_5.png"))
+entry_bg_6 = canvas.create_image(
+    771.5,
+    290.5,
+    image=entry_image_6
+)
+entry_6 = Entry(
+    bd=0,
+    bg="#D9D9D9",
+    fg="#000716",
+    highlightthickness=0,
+    textvariable=tkinter.IntVar(value=6)
+)
+entry_6.place(
+    x=675.0,
+    y=274.0,
+    width=173.0,
+    height=31.0
+)
+
+canvas.create_text(
+    675.0,
+    246.0,
     anchor="nw",
     text="Oversampling index:",
     fill="#000000",
     font=("Inter", 20 * -1)
 )
+
+
+
+
 
 # image_image_1 = PhotoImage(
 #     file=relative_to_assets("image_1.png"))
@@ -497,3 +572,6 @@ canvas.create_text(
 # )
 window.resizable(False, False)
 window.mainloop()
+
+
+
